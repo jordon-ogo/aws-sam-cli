@@ -13,6 +13,26 @@ from samcli.lib.utils.version_checker import check_newer_version
 from samcli.commands._utils.options import template_option_without_build
 
 
+from samtranslator.translator.translator import Translator
+from samtranslator.public.exceptions import InvalidDocumentException
+
+import boto3
+from samtranslator.translator.managed_policy_translator import ManagedPolicyLoader
+from samtranslator.parser import parser
+from boto3.session import Session
+from samcli.yamlhelper import yaml_dump
+from samcli.lib.utils.packagetype import ZIP
+
+from samcli.lib.replace_uri.replace_uri import ReplaceLocalCodeUri
+
+from samcli.lib.providers.sam_function_provider import SamFunctionProvider
+from samcli.lib.providers.sam_stack_provider import SamLocalStackProvider
+from .bottle_necks import BottleNecks
+from .graph_context import GraphContext
+from .resources.LambdaFunction import LambdaFunction
+from .exceptions import InvalidSamDocumentException
+
+
 SHORT_HELP = "Checks template for bottle necks."
 
 
@@ -63,6 +83,66 @@ def cli(
 def do_cli(ctx, template_path):
     """
     Implementation of the ``cli`` method
+
+
+    Translate template into CloudFormation yaml format
+    """
+
+    # acquire template and policies
+    sam_template = _read_sam_file(template)
+    iam_client = boto3.client("iam")
+    managed_policy_map = ManagedPolicyLoader(iam_client).load()
+
+    sam_translator = Translator(
+        managed_policy_map=managed_policy_map,
+        sam_parser=parser.Parser(),
+        plugins=[],
+        boto_session=Session(profile_name=ctx.profile, region_name=ctx.region),
+    )
+
+    # Convert uri's
+    uri_replace = ReplaceLocalCodeUri(sam_template)
+    sam_template = uri_replace._replace_local_codeuri()
+
+    # Translate template
+    try:
+        template = sam_translator.translate(sam_template=sam_template, parameter_values={})
+    except InvalidDocumentException as e:
+        raise InvalidSamDocumentException(
+            functools.reduce(lambda message, error: message + " " + str(error), e.causes, str(e))
+        ) from e
+
+    click.echo("... analyzing application template")
+
+    graph = parse_template()
+
+    bottle_necks = BottleNecks(graph)
+    bottle_necks.ask_entry_point_question()
+
+
+def parse_template():
+
+    all_lambda_functions = []
+
+    # template path
+    path = os.path.realpath("template.yaml")
+
+    # Get all lambda functions
+    local_stacks = SamLocalStackProvider.get_stacks(path)[0]
+    function_provider = SamFunctionProvider(local_stacks)
+    functions = function_provider.get_all()  # List of all functions in the stacks
+    for stack_function in functions:
+        new_lambda_function = LambdaFunction(stack_function, "AWS::Lambda::Function")
+        all_lambda_functions.append(new_lambda_function)
+
+    # After all resources have been parsed from template, pass them into the graph
+    graph_context = GraphContext(all_lambda_functions)
+
+    return graph_context.generate()
+
+
+def _read_sam_file(template):
+
     """
 
     from samcli.commands.check.lib.command_context import CheckContext
