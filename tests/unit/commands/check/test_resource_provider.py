@@ -1,5 +1,5 @@
 from unittest import TestCase
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import mock_open, Mock, patch
 
 from samcli.commands.check.lib.resource_provider import ResourceProvider
 
@@ -25,7 +25,7 @@ class TestResourceProvider(TestCase):
         tmp_mock.write = Mock()
         tmp_mock.close = Mock()
 
-        patch_stack.get_stacks.return_value = local_stacks_mock
+        patch_stack.get_stacks.return_value = [[[None, None, None, None, local_stacks_mock]]]
 
         resource_provider = ResourceProvider(template_mock)
 
