@@ -1,4 +1,4 @@
-from .resources.Graph import Graph
+from samcli.commands.check.resources.graph import Graph
 
 
 class GraphContext:

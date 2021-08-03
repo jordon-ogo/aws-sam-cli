@@ -7,8 +7,8 @@ import tempfile
 from samcli.yamlhelper import yaml_dump
 from samcli.lib.providers.sam_stack_provider import SamLocalStackProvider
 
-from samcli.commands.check.resources.ApiGateway import ApiGateway
-from samcli.commands.check.resources.LamdaFunctionPermission import LambdaFunctionPermission
+from samcli.commands.check.resources.api_gateway import ApiGateway
+from samcli.commands.check.resources.lambda_function_permission import LambdaFunctionPermission
 
 
 class ResourceProvider:
