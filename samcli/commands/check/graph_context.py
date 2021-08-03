@@ -1,5 +1,5 @@
-from .resources.Graph import Graph
-from samcli.commands.check.resources.DynamoDB import DynamoDB
+from samcli.commands.check.resources.graph import Graph
+from samcli.commands.check.resources.dynamo_db import DynamoDB
 
 
 class GraphContext:

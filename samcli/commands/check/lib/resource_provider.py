@@ -7,10 +7,10 @@ import tempfile
 from samcli.yamlhelper import yaml_dump
 from samcli.lib.providers.sam_stack_provider import SamLocalStackProvider
 
-from samcli.commands.check.resources.ApiGateway import ApiGateway
-from samcli.commands.check.resources.LamdaFunctionPermission import LambdaFunctionPermission
-from samcli.commands.check.resources.EventSourceMapping import EventSourceMapping
-from samcli.commands.check.resources.DynamoDB import DynamoDB
+from samcli.commands.check.resources.api_gateway import ApiGateway
+from samcli.commands.check.resources.lambda_function_permission import LambdaFunctionPermission
+from samcli.commands.check.resources.event_source_mapping import EventSourceMapping
+from samcli.commands.check.resources.dynamo_db import DynamoDB
 
 
 class ResourceProvider:

@@ -3,7 +3,7 @@ import click
 from click import confirm
 from click import prompt
 
-from .resources.Pricing import Pricing
+from samcli.commands.check.resources.pricing import Pricing
 
 
 class BottleNecks:
