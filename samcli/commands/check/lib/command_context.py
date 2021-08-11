@@ -19,7 +19,8 @@ from samcli.commands.check.resources.graph import CheckGraph
 from samcli.commands.check.resources.pricing import CheckPricing
 from samcli.commands._utils.resources import AWS_LAMBDA_FUNCTION
 
-from samcli.commands.check.calculation import CheckCalculation
+from samcli.commands.check.pricing_calculations import PricingCalculations
+from samcli.commands.check.bottle_neck_calculations import BottleNeckCalculations
 from samcli.commands.check.print_results import CheckResults
 
 from samcli.yamlhelper import yaml_parse
