@@ -19,7 +19,7 @@ from samcli.commands.check.resources.graph import CheckGraph
 from samcli.commands.check.resources.pricing import CheckPricing
 from samcli.commands._utils.resources import AWS_LAMBDA_FUNCTION
 
-from samcli.commands.check.pricing_calculations import PricingCalculations
+from samcli.commands.check.lambda_function_pricing_calculations import LambdaFunctionPricingCalculations
 from samcli.commands.check.bottle_neck_calculations import BottleNeckCalculations
 from samcli.commands.check.print_results import CheckResults
 
@@ -80,10 +80,10 @@ class CheckContext:
         pricing = CheckPricing(graph)
         pricing.ask_pricing_questions()
 
-        calculations = CheckCalculation(graph)
-        calculations.run_bottle_neck_calculations()
+        lambda_pricing_calculations = LambdaFunctionPricingCalculations(graph)
+        lambda_pricing_calculations.run_calculations()
 
-        results = CheckResults(graph)
+        results = CheckResults(graph, lambda_pricing_calculations.lambda_pricing_results)
         results.print_bottle_neck_results()
 
     def _transform_template(self) -> Any:
